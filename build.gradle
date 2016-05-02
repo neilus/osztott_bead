@@ -9,10 +9,10 @@
 
 // Apply the java plugin to add support for Java
 apply plugin: 'java'
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
-apply plugin: 'application'
-mainClassName = 'hu.elte.elosztott.cwjkl1.Main'
+//sourceCompatibility = 1.8
+//targetCompatibility = 1.8
+//apply plugin: 'application'
+mainClassName = 'bead.egyszeru.Jatekszerver'
 // In this section you declare where to find the dependencies of your project
 repositories {
     // Use 'jcenter' for resolving your dependencies.
@@ -66,7 +66,7 @@ task buildNrun {
     description 'Build and run the Application with samples'
 }
 
-test.setFinalizedBy(['robot'])
-buildNrun.setFinalizedBy(['build', 'run'])
+//test.setFinalizedBy(['robot'])
+//buildNrun.setFinalizedBy(['build', 'run'])
 
-defaultTasks  'buildNrun'
+defaultTasks 'build' //'buildNrun'
