@@ -53,22 +53,29 @@ public class ClientHandler implements Runnable {
                 }
             }
         } else if (otherSocket >= 0){
-            if(this.jatek == null) {
-                this.jatek = this.jatekok.get(thisSocket/2);
-            }
             // milyen szot uzentunk legutobb?
             try {
                 PrintStream out = new PrintStream(
                         allClients.get(otherSocket).getOutputStream());
                 if(message.equals("nyert")){
                     out.println(message);
+                    out.flush();
                     System.out.println(myName + " veszitett");
                 }else {
-                    out.println(myName + ": " + message);
-                    System.out.println(myName + ": " + message);
-                    this.jatek.newMsg(myName, message);
+                    if(this.jatek == null) {
+                        this.jatek = this.jatekok.get(thisSocket/2);
+                    }
+                    if(!this.jatek.newMsg(myName, message)){
+                        try(PrintStream me = new PrintStream(this.socket.getOutputStream())) {
+                            me.println("Rosz szo, probald ujra!");
+                            me.flush();
+                        }
+                    } else {
+                        out.println(myName + ": " + message);
+                        out.flush();
+                        System.out.println(myName + ": " + message);
+                    }
                 }
-                out.flush();
             } catch (IOException e) {
                 e.printStackTrace();
             }

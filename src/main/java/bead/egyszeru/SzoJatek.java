@@ -34,8 +34,19 @@ public class SzoJatek implements Serializable{
         jatek = new CopyOnWriteArrayList<>();
     }
 
-    public void newMsg(String name, String msg){
-        jatek.add(new Sor(name, msg));
+    public boolean newMsg(String name, String msg){
+        if(jatek.size() < 1){
+            jatek.add(new Sor(name, msg));
+        } else {
+            String szo = jatek.get(jatek.size() - 1).szo;
+
+            if (msg.charAt(0) == szo.charAt(szo.length() -1)) {
+                jatek.add(new Sor(name, msg));
+            } else
+                return false;
+        }
+
+        return true;
     }
 
     ///Done: Idobelyeggel ellatott jatek-log, soronkent: <jatekos neve> <szo>
