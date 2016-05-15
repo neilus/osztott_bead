@@ -26,7 +26,7 @@ public class Jatekszerver {
         try {
             //Done: PORT = 65456
             ServerSocket serverSocket = new ServerSocket(PORT);
-            //Todo: Exit-re kilep a jatekbol, a masik jatekos nyert, bontja mindket kapcsolatot
+
             //Todo: Idobelyeggel ellatott jatek-log, soronkent: <jatekos neve> <szo>
             //Todo: Start uzenetet kuldeni a kezdo jatekosnak
             //Todo: Egyszvas uzenetet fogad a jatekostol
@@ -35,8 +35,7 @@ public class Jatekszerver {
 
             //Todo: Ciklusban varja a jatekosokat
             while (true) {
-                //Todo: Tobb parhuzamos jatekot is tudjon kiszolgalni
-                //ha accept -> new thread(socket) -> Jatek
+                //Done: Tobb parhuzamos jatekot is tudjon kiszolgalni
                 while (true) {
                     threadPool.execute(
                         new ClientHandler(
@@ -44,7 +43,7 @@ public class Jatekszerver {
                             sockets
                         )
                     );
-                    //Todo: bevarni a 2. jatekost is!
+
 
                 }
             }

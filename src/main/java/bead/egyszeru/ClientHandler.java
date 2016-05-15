@@ -14,6 +14,7 @@ public class ClientHandler implements Runnable {
     private final CopyOnWriteArrayList<Socket> allClients;
 
     private String myName = null;
+    private int otherSocket = -1;
 
     public ClientHandler(Socket socket, CopyOnWriteArrayList<Socket> allClients) {
         this.socket = socket;
@@ -22,9 +23,9 @@ public class ClientHandler implements Runnable {
 
     public void publishMessage(String message) {
         // keressuk meg a jatszotarsunkat
-        int otherSocket = -1;
         int thisSocket = allClients.indexOf(this.socket);
 
+        //Done: bevarni a 2. jatekost is!
         if(thisSocket % 2 == 1) {
             otherSocket = thisSocket -1;
         } else if(thisSocket + 1 < allClients.size()){
@@ -33,13 +34,29 @@ public class ClientHandler implements Runnable {
 
         if(myName == null){
             myName = message;
-        } else {
+            if( (otherSocket != -1) && (thisSocket % 2 == 0) ) {
+                try {
+                    PrintStream out = new PrintStream(
+                            allClients.get(otherSocket).getOutputStream());
+                    out.println("start");
+                    System.out.println(myName + ": starts the game");
+                    out.flush();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        } else if (otherSocket >= 0){
             // milyen szot uzentunk legutobb?
             try {
                 PrintStream out = new PrintStream(
                         allClients.get(otherSocket).getOutputStream());
-                out.println(myName + ": " + message);
-                System.out.println(myName + ": " + message);
+                if(message.equals("nyert")){
+                    out.println(message);
+                    System.out.println(myName + " veszitett");
+                }else {
+                    out.println(myName + ": " + message);
+                    System.out.println(myName + ": " + message);
+                }
                 out.flush();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -63,8 +80,14 @@ public class ClientHandler implements Runnable {
                             socket.getInputStream()));
             while (true) {
                 String line = br.readLine();
+                //Done: Exit-re kilep a jatekbol, a masik jatekos nyert, bontja mindket kapcsolatot
                 if ("exit".equals(line)) {
-                    allClients.remove(socket);
+                    publishMessage("nyert");
+//                    allClients.remove(socket);
+                    socket.close();
+                    return;
+                }
+                if( (otherSocket != -1) && (allClients.get(otherSocket).isClosed()) ){
                     socket.close();
                     return;
                 }
