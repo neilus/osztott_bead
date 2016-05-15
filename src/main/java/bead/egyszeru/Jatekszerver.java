@@ -22,7 +22,7 @@ public class Jatekszerver {
     public static void main(String[] args) throws IOException {
         final ExecutorService threadPool = Executors.newFixedThreadPool(4);
         final CopyOnWriteArrayList<Socket> sockets = new CopyOnWriteArrayList<>();
-        final CopyOnWriteArrayList<String> names   = new CopyOnWriteArrayList<>();
+
         try {
             //Done: PORT = 65456
             ServerSocket serverSocket = new ServerSocket(PORT);
@@ -41,8 +41,7 @@ public class Jatekszerver {
                     threadPool.execute(
                         new ClientHandler(
                             serverSocket.accept(),
-                            sockets,
-                            names
+                            sockets
                         )
                     );
                     //Todo: bevarni a 2. jatekost is!

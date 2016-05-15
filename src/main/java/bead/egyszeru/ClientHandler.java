@@ -12,12 +12,12 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class ClientHandler implements Runnable {
     private final Socket socket;
     private final CopyOnWriteArrayList<Socket> allClients;
-    private final CopyOnWriteArrayList<String> allNames;
 
-    public ClientHandler(Socket socket, CopyOnWriteArrayList<Socket> allClients, CopyOnWriteArrayList<String> allNames) {
+    private String myName = null;
+
+    public ClientHandler(Socket socket, CopyOnWriteArrayList<Socket> allClients) {
         this.socket = socket;
         this.allClients = allClients;
-        this.allNames = allNames;
     }
 
     public void publishMessage(String message) {
@@ -31,16 +31,20 @@ public class ClientHandler implements Runnable {
             otherSocket = thisSocket + 1;
         }
 
-        // milyen szot uzentunk legutobb?
-        try {
-            PrintStream out = new PrintStream(
-                    allClients.get(otherSocket).getOutputStream());
-            out.println(message);
-            out.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
+        if(myName == null){
+            myName = message;
+        } else {
+            // milyen szot uzentunk legutobb?
+            try {
+                PrintStream out = new PrintStream(
+                        allClients.get(otherSocket).getOutputStream());
+                out.println(myName + ": " + message);
+                System.out.println(myName + ": " + message);
+                out.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
-
         try {
             Thread.sleep(2000);
         } catch(Exception e) {
