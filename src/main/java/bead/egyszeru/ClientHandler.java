@@ -7,6 +7,8 @@ import java.net.Socket;
 import java.util.Calendar;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+class GameStartException extends RuntimeException {}
+class WrongWordException extends RuntimeException {}
 
 public class ClientHandler implements Runnable {
     private final Socket socket;
@@ -39,24 +41,11 @@ public class ClientHandler implements Runnable {
         if(myName == null){
             myName = message;
             if( (otherSocket != -1) && (thisSocket % 2 == 0) ) {
-                try {
-                    //Done: Start uzenetet kuldeni a kezdo jatekosnak
-                    PrintStream out = new PrintStream(
-                            allClients.get(otherSocket).getOutputStream());
-                    out.println("start");
-                    System.out.println(myName + ": starts the game");
-                    this.jatek = new SzoJatek();
-                    this.jatekok.add(this.jatek);
-                    out.flush();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                throw new GameStartException();
             }
         } else if (otherSocket >= 0){
             // milyen szot uzentunk legutobb?
-            try {
-                PrintStream out = new PrintStream(
-                        allClients.get(otherSocket).getOutputStream());
+            try (PrintStream out = new PrintStream(allClients.get(otherSocket).getOutputStream())){
                 if(message.equals("nyert")){
                     out.println(message);
                     out.flush();
@@ -67,8 +56,11 @@ public class ClientHandler implements Runnable {
                     }
                     if(!this.jatek.newMsg(myName, message)){
                         try(PrintStream me = new PrintStream(this.socket.getOutputStream())) {
-                            me.println("Rosz szo, probald ujra!");
+                            me.println("Rossz szo, probald ujra!");
                             me.flush();
+                        } catch (IOException e) {
+                            System.out.println(e.getLocalizedMessage());
+                            e.printStackTrace();
                         }
                     } else {
                         out.println(myName + ": " + message);
@@ -77,41 +69,51 @@ public class ClientHandler implements Runnable {
                     }
                 }
             } catch (IOException e) {
+                System.out.println(e.getLocalizedMessage());
                 e.printStackTrace();
             }
         }
         try {
-            Thread.sleep(2000);
+//            Thread.sleep(2000);
         } catch(Exception e) {
+            System.out.println(e.getLocalizedMessage());
             e.printStackTrace();
         }
     }
 
     public void run() {
-
         allClients.add(socket);
 
-
-        try {
-            BufferedReader br = new BufferedReader(
-                    new InputStreamReader(
-                            socket.getInputStream()));
+        try (
+            BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            PrintStream output = new PrintStream(socket.getOutputStream());
+        ){
             while (true) {
-                String line = br.readLine();
+                String line = input.readLine();
                 //Done: Exit-re kilep a jatekbol, a masik jatekos nyert, bontja mindket kapcsolatot
                 if ("exit".equals(line)) {
                     publishMessage("nyert");
 //                    allClients.remove(socket);
                     socket.close();
                     this.jatek.writeToFile(startTime);
-                    return;
+
+                    break;
                 }
                 if( (otherSocket != -1) && (allClients.get(otherSocket).isClosed()) ){
                     socket.close();
 
-                    return;
+                    break;
                 }
-                publishMessage(line);
+                try {
+                    publishMessage(line);
+                }catch (GameStartException e) {
+                    //Done: Start uzenetet kuldeni a kezdo jatekosnak
+                    output.write("start");
+                    System.out.println(myName + ": starts the game");
+                    this.jatek = new SzoJatek();
+                    this.jatekok.add(this.jatek);
+                    out.flush();
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
