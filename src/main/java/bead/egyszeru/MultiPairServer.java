@@ -15,13 +15,12 @@ public class MultiPairServer {
         final ExecutorService pool =
                 Executors.newFixedThreadPool(16);
         final CopyOnWriteArrayList<Socket> sockets =
-                new CopyOnWriteArrayList<Socket>();
+                new CopyOnWriteArrayList<>();
+        final CopyOnWriteArrayList<SzoJatek> jatekok = new CopyOnWriteArrayList<>();
         try {
             ServerSocket serverSock = new ServerSocket(5656);
             while (true) {
-                pool.execute(new ClientHandler(
-                        serverSock.accept(),
-                        sockets));
+                pool.execute(new ClientHandler(serverSock.accept(), sockets, jatekok));
             }
         } catch(IOException e) {
             e.printStackTrace();

@@ -7,8 +7,8 @@ import java.net.Socket;
 import java.util.Calendar;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-class GameStartException extends RuntimeException {}
-class WrongWordException extends RuntimeException {}
+class GameStartException extends Exception {}
+class WrongWordException extends Exception {}
 
 public class ClientHandler implements Runnable {
     private final Socket socket;
@@ -112,7 +112,7 @@ public class ClientHandler implements Runnable {
                     System.out.println(myName + ": starts the game");
                     this.jatek = new SzoJatek();
                     this.jatekok.add(this.jatek);
-                    out.flush();
+                    output.flush();
                 }
             }
         } catch (IOException e) {
