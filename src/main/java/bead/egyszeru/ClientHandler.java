@@ -27,7 +27,7 @@ public class ClientHandler implements Runnable {
         startTime = new Timestamp(Calendar.getInstance().getTimeInMillis());
     }
 
-    public void publishMessage(String message) {
+    public void publishMessage(String message) throws GameStartException {
         // keressuk meg a jatszotarsunkat
         int thisSocket = allClients.indexOf(this.socket);
 
@@ -92,7 +92,12 @@ public class ClientHandler implements Runnable {
                 String line = input.readLine();
                 //Done: Exit-re kilep a jatekbol, a masik jatekos nyert, bontja mindket kapcsolatot
                 if ("exit".equals(line)) {
-                    publishMessage("nyert");
+                    try {
+                        publishMessage("nyert");
+                    } catch (GameStartException e) {
+                        System.out.println("nyert");
+                        e.printStackTrace();
+                    }
 //                    allClients.remove(socket);
                     socket.close();
                     this.jatek.writeToFile(startTime);
@@ -108,7 +113,7 @@ public class ClientHandler implements Runnable {
                     publishMessage(line);
                 }catch (GameStartException e) {
                     //Done: Start uzenetet kuldeni a kezdo jatekosnak
-                    output.write("start");
+//                    output.write("start");
                     System.out.println(myName + ": starts the game");
                     this.jatek = new SzoJatek();
                     this.jatekok.add(this.jatek);
