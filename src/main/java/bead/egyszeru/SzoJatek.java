@@ -6,7 +6,6 @@ import java.io.*;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-
 class Sor implements Serializable{
     public String getName() {
         return name;
