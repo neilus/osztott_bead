@@ -9,9 +9,8 @@
 
 // Apply the java plugin to add support for Java
 apply plugin: 'java'
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
 apply plugin: 'application'
+
 mainClassName = 'bead.egyszeru.Jatekszerver'
 // In this section you declare where to find the dependencies of your project
 repositories {
@@ -67,6 +66,6 @@ task buildNrun {
 }
 
 //test.setFinalizedBy(['robot'])
-buildNrun.setFinalizedBy(['build', 'run'])
+//buildNrun.setFinalizedBy(['build', 'run'])
 
 defaultTasks 'build' //'buildNrun'

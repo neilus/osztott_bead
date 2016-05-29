@@ -6,8 +6,6 @@ import java.io.*;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import static com.oracle.jrockit.jfr.ContentType.Timestamp;
-
 class Sor implements Serializable{
     public String getName() {
         return name;
