@@ -3,6 +3,7 @@ package bead.egyszeru;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -20,6 +21,7 @@ public class Jatekszerver {
         try {
             //Done: PORT = 65456
             ServerSocket serverSocket = new ServerSocket(PORT);
+            serverSocket.setSoTimeout(60000);
 
             //Todo: Egyszvas uzenetet fogad a jatekostol
             //Todo: Folytassa a szolancot, stb
@@ -35,8 +37,11 @@ public class Jatekszerver {
                     )
                 );
             }
+        } catch (SocketTimeoutException timoutEx){
+            System.out.println(timoutEx.getLocalizedMessage());
+            System.exit(0);
         } catch (IOException e){
-            e.printStackTrace();
+            System.out.println(e.getLocalizedMessage());
         }
     }
 }

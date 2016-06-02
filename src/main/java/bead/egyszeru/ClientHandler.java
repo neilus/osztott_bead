@@ -100,15 +100,19 @@ public class ClientHandler implements Runnable {
 
                     } else if ((otherSocket != -1) && allClients.get(otherSocket).isClosed()) {
                             System.out.println("The other player exited, closing socket for player " + myName);
+                            output.println();
                             socket.close();
                     }
 
                     publishMessage(line, me, playmate);
                 } catch (GameStartException e) {
                     //Todo: Start uzenetet kuldeni a kezdo jatekosnak
-                    output.println("start");
-                    output.flush();
-                    System.out.println(e.getName() + ": starts the game");
+                    if(playmate == null){
+                        playmate = new PrintWriter(allClients.get(otherSocket).getOutputStream());
+                    }
+                    playmate.println("start");
+                    playmate.flush();
+                    System.out.println("Starting the game...");
                     this.jatek = new SzoJatek();
                     this.jatekok.add(this.jatek);
                 }
