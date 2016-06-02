@@ -32,6 +32,13 @@ public class SzoJatek implements Serializable{
         jatek = new CopyOnWriteArrayList<>();
     }
 
+    /**
+     * Try to send a message int the game. It also has to qualify to the game rules to achieve this. If it qualifies
+     * It will be added to the messages submitted in the game and return <b>true</b>, if not then simply returns false;
+     * @param name players name
+     * @param msg players message
+     * @return false if the message doesn't qualifies
+     */
     public boolean newMsg(String name, String msg){
         if(jatek.size() < 1){
             jatek.add(new Sor(name, msg));
