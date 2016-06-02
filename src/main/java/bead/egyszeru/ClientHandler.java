@@ -55,6 +55,7 @@ public class ClientHandler implements Runnable {
                 }
 
                 if(message.equals("nyert")){
+                    this.jatek.endGame();
                     playmate.println(message);
                     playmate.flush();
                     System.out.println(myName + " veszitett");

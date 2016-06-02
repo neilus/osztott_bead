@@ -27,6 +27,15 @@ class Sor implements Serializable{
 }
 public class SzoJatek implements Serializable{
     private List<Sor> jatek;
+    private boolean ended = false;
+
+    public void endGame(){
+        ended = true;
+    }
+
+    public boolean hasEnded(){
+        return ended;
+    }
 
     public SzoJatek(){
         jatek = new CopyOnWriteArrayList<>();

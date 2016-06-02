@@ -12,7 +12,7 @@ import java.util.concurrent.Executors;
 
 public class Jatekszerver {
     final static int PORT = 65456;
-
+    final static int aMinute = 60000;
     public static void main(String[] args) throws IOException {
         final ExecutorService threadPool = Executors.newFixedThreadPool(4);
         final CopyOnWriteArrayList<Socket> sockets = new CopyOnWriteArrayList<>();
@@ -21,7 +21,7 @@ public class Jatekszerver {
         try {
             //Done: PORT = 65456
             ServerSocket serverSocket = new ServerSocket(PORT);
-            serverSocket.setSoTimeout(60000);
+            serverSocket.setSoTimeout(aMinute);
 
             //Todo: Egyszvas uzenetet fogad a jatekostol
             //Todo: Folytassa a szolancot, stb
@@ -39,7 +39,12 @@ public class Jatekszerver {
             }
         } catch (SocketTimeoutException timoutEx){
             System.out.println(timoutEx.getLocalizedMessage());
-            System.exit(0);
+            int i;
+            for(i = 0; i < jatekok.size() && jatekok.get(i).hasEnded(); i++)
+                ;
+            if(jatekok.get(i).hasEnded()) {
+                System.exit(0);
+            }
         } catch (IOException e){
             System.out.println(e.getLocalizedMessage());
         }
