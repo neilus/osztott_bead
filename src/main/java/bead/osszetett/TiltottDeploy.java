@@ -12,16 +12,16 @@ public class TiltottDeploy {
         Registry reg = LocateRegistry.getRegistry();
         int count = 2;
 //		 saj�t registry
-//        Registry reg = LocateRegistry.createRegistry(4321);
 
         if(args.length > 1){
             count = Integer.parseInt(args[0]);
         }
 
-        TiltottSzerver[] tiltottSzervers = new TiltottSzerver[count + 1];
+        TiltottImpl[] tiltottImpls = new TiltottImpl[count + 1];
         for(int i = 1; i <= count; i++){
-            tiltottSzervers[i] = new TiltottSzerver(i);
-            reg.bind("tiltott" + i, tiltottSzervers[i]);
+            tiltottImpls[i] = new TiltottImpl(i);
+            System.out.println("Binding tiltott" + i + " to the RMI registry service...");
+            reg.bind("tiltott" + i, tiltottImpls[i]);
         }
     }
 }

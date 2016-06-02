@@ -11,12 +11,12 @@ import java.util.concurrent.CopyOnWriteArrayList;
 /**
  * Created by enorsan on 6/2/16.
  */
-public class TiltottSzerver extends UnicastRemoteObject {
+public class TiltottImpl extends UnicastRemoteObject implements TiltottIface{
     List<String> tiltottSzavak = new CopyOnWriteArrayList<>();
-    protected TiltottSzerver() throws RemoteException {
+    protected TiltottImpl() throws RemoteException {
     }
 
-    protected TiltottSzerver(int i) throws RemoteException, FileNotFoundException {
+    protected TiltottImpl(int i) throws RemoteException, FileNotFoundException {
         BufferedReader szavasFile = new BufferedReader(new FileReader("./src/main/resources/szokincs" + i + ".txt"));
         String line = null;
         try {
@@ -30,19 +30,12 @@ public class TiltottSzerver extends UnicastRemoteObject {
         }
     }
 
-    protected TiltottSzerver(int i, RMIClientSocketFactory rmiClientSocketFactory, RMIServerSocketFactory rmiServerSocketFactory) throws RemoteException {
+    protected TiltottImpl(int i, RMIClientSocketFactory rmiClientSocketFactory, RMIServerSocketFactory rmiServerSocketFactory) throws RemoteException {
         super(i, rmiClientSocketFactory, rmiServerSocketFactory);
     }
 
-    public synchronized boolean tiltottE(String ujSzo){
-        for(String szo:tiltottSzavak){
-            if(ujSzo.equalsIgnoreCase(szo)){
-
-                return true;
-            }
-        }
-        tiltottSzavak.add(ujSzo);
-
+    @Override
+    public boolean tiltottE(String ujSzo) throws RemoteException {
         return false;
     }
 }
