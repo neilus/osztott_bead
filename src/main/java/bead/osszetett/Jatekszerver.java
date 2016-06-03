@@ -21,6 +21,7 @@ public class Jatekszerver {
         final CopyOnWriteArrayList<Socket> sockets = new CopyOnWriteArrayList<>();
         final CopyOnWriteArrayList<SzoJatek> jatekok = new CopyOnWriteArrayList<>();
         final TiltottIface[] tiltottSzervers;
+        final CopyOnWriteArrayList<Integer> tiltottSrv = new CopyOnWriteArrayList<>();
 
         Registry reg = LocateRegistry.getRegistry();
         System.out.println("Listing tiltott szavak services registered to the rmi service:");
@@ -48,7 +49,8 @@ public class Jatekszerver {
                         serverSocket.accept(),
                         sockets,
                         jatekok,
-                        tiltottSzervers
+                        tiltottSzervers,
+                        tiltottSrv
                     )
                 );
             }

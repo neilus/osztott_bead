@@ -50,8 +50,6 @@ public class SzoJatek implements Serializable{
             } else
                 return false;
         }
-
-        return true;
     }
 
     ///Done: Idobelyeggel ellatott jatek-log, soronkent: <jatekos neve> <szo>

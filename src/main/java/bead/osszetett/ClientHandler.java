@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.lang.Integer;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -16,7 +17,7 @@ public class ClientHandler implements Runnable {
     private final CopyOnWriteArrayList<Socket> allClients;
     private final CopyOnWriteArrayList<SzoJatek> jatekok;
     private final TiltottIface[] tiltottIfaces;
-    private TiltottIface tiltottSrv;
+    private final CopyOnWriteArrayList<Integer> tiltottSrv;
 
     private SzoJatek jatek = null;
     private String myName = null;
@@ -26,9 +27,11 @@ public class ClientHandler implements Runnable {
     public ClientHandler(Socket socket,
                          CopyOnWriteArrayList<Socket> allClients,
                          CopyOnWriteArrayList<SzoJatek> jatekok,
-                         TiltottIface[] tiltottSzervers) {
+                         TiltottIface[] tiltottSzervers,
+                         CopyOnWriteArrayList<Integer> tiltottSrv) {
 
         this.tiltottIfaces = tiltottSzervers;
+        this.tiltottSrv = tiltottSrv;
         this.socket = socket;
         this.allClients = allClients;
         this.jatekok = jatekok;
@@ -42,10 +45,12 @@ public class ClientHandler implements Runnable {
         //Done: bevarni a 2. jatekost is!
         if(thisSocket % 2 == 1) {
             otherSocket = thisSocket -1;
-            tiltottSrv = tiltottIfaces[0];
+            if(tiltottSrv.get(thisSocket) == -1)
+                tiltottSrv.set(thisSocket, 0);
         } else if(thisSocket + 1 < allClients.size()){
             otherSocket = thisSocket + 1;
-            tiltottSrv = tiltottIfaces[1];
+            if(tiltottSrv.get(thisSocket) == -1)
+                tiltottSrv.set(thisSocket, 1);
         }
 
         if(myName == null){
@@ -74,7 +79,7 @@ public class ClientHandler implements Runnable {
                     if(this.jatek == null) {
                         this.jatek = this.jatekok.get(thisSocket/2);
                     }
-                    if(!this.jatek.newMsg(myName, message, tiltottSrv)){
+                    if(!this.jatek.newMsg(myName, message, tiltottIfaces[tiltottSrv.get(thisSocket)])){
                         if(me == null) {
                             me = new PrintWriter(socket.getOutputStream());
                         }
@@ -110,6 +115,7 @@ public class ClientHandler implements Runnable {
 
     public void run() {
         allClients.add(socket);
+        tiltottSrv.add(-1);
 
         try (
             BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -123,9 +129,12 @@ public class ClientHandler implements Runnable {
                         System.out.println("Player " + myName + " exits");
                         throw new TiltottSzoException(line);
                     } else if ((otherSocket != -1) && allClients.get(otherSocket).isClosed()) {
-                            System.out.println("The other player exited, closing socket for player " + myName);
-                            output.println();
-                            socket.close();
+                        System.out.println("The other player exited, closing socket for player " + myName);
+                        output.println();
+                        socket.close();
+                        throw new GameEndException();
+                    } else if(line.contains("tiltott")){
+                        throw new TiltottSzerverException(line);
                     }
 
                     publishMessage(line, me, playmate);
@@ -150,6 +159,12 @@ public class ClientHandler implements Runnable {
                     this.jatek.writeToFile(startTime);
                 } catch (IOException ex){
                     System.out.println("Game Over, " + ex.getLocalizedMessage());
+                } catch (GameEndException e) {
+                    System.out.println("Game Over, " + myName + " Wins!");
+                } catch (TiltottSzerverException e) {
+                    if(tiltottIfaces.length > e.getSrvnum()) {
+                        tiltottSrv.set(otherSocket, e.getSrvnum());
+                    }
                 }
             }
         } catch (IOException e) {
