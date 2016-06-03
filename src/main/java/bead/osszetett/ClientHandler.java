@@ -15,6 +15,8 @@ public class ClientHandler implements Runnable {
 
     private final CopyOnWriteArrayList<Socket> allClients;
     private final CopyOnWriteArrayList<SzoJatek> jatekok;
+    private final TiltottIface[] tiltottIfaces;
+    private TiltottIface tiltottSrv;
 
     private SzoJatek jatek = null;
     private String myName = null;
@@ -26,6 +28,7 @@ public class ClientHandler implements Runnable {
                          CopyOnWriteArrayList<SzoJatek> jatekok,
                          TiltottIface[] tiltottSzervers) {
 
+        this.tiltottIfaces = tiltottSzervers;
         this.socket = socket;
         this.allClients = allClients;
         this.jatekok = jatekok;
@@ -39,8 +42,10 @@ public class ClientHandler implements Runnable {
         //Done: bevarni a 2. jatekost is!
         if(thisSocket % 2 == 1) {
             otherSocket = thisSocket -1;
+            tiltottSrv = tiltottIfaces[0];
         } else if(thisSocket + 1 < allClients.size()){
             otherSocket = thisSocket + 1;
+            tiltottSrv = tiltottIfaces[1];
         }
 
         if(myName == null){
@@ -69,7 +74,7 @@ public class ClientHandler implements Runnable {
                     if(this.jatek == null) {
                         this.jatek = this.jatekok.get(thisSocket/2);
                     }
-                    if(!this.jatek.newMsg(myName, message)){
+                    if(!this.jatek.newMsg(myName, message, tiltottSrv)){
                         if(me == null) {
                             me = new PrintWriter(socket.getOutputStream());
                         }

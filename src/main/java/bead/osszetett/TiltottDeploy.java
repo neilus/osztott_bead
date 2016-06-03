@@ -17,11 +17,11 @@ public class TiltottDeploy {
             count = Integer.parseInt(args[0]);
         }
 
-        TiltottImpl[] tiltottImpls = new TiltottImpl[count + 1];
+        TiltottSzerver[] tiltottSzervers = new TiltottSzerver[count + 1];
         for(int i = 1; i <= count; i++){
-            tiltottImpls[i] = new TiltottImpl(i);
+            tiltottSzervers[i] = new TiltottSzerver(i);
             System.out.println("Binding tiltott" + i + " to the RMI registry service...");
-            reg.bind("tiltott" + i, tiltottImpls[i]);
+            reg.bind("tiltott" + i, tiltottSzervers[i]);
         }
     }
 }

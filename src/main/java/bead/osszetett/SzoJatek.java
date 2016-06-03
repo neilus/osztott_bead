@@ -1,7 +1,7 @@
 package bead.osszetett;
 
-import bead.osszetett.Sor;
 import java.io.*;
+import java.rmi.RemoteException;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -29,19 +29,22 @@ public class SzoJatek implements Serializable{
      * @param msg players message
      * @return false if the message doesn't qualifies
      */
-    public boolean newMsg(String name, String msg){
-        if(jatek.size() < 1){
+    public boolean newMsg(String name, String msg, TiltottIface lista) throws RemoteException {
+        if(jatek.size() < 1 && !lista.tiltottE(msg)){
             jatek.add(new Sor(name, msg));
         } else {
             String szo = jatek.get(jatek.size() - 1).szo;
 
             if (msg.charAt(0) == szo.charAt(szo.length() -1)) {
-                jatek.add(new Sor(name, msg));
-            } else
-                return false;
+                if(!lista.tiltottE(msg)) {
+                    jatek.add(new Sor(name, msg));
+
+                    return true;
+                }
+            }
         }
 
-        return true;
+        return false;
     }
 
     ///Done: Idobelyeggel ellatott jatek-log, soronkent: <jatekos neve> <szo>
