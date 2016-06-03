@@ -29,9 +29,14 @@ public class SzoJatek implements Serializable{
      * @param msg players message
      * @return false if the message doesn't qualifies
      */
-    public boolean newMsg(String name, String msg, TiltottIface lista) throws RemoteException {
-        if(jatek.size() < 1 && !lista.tiltottE(msg)){
-            jatek.add(new Sor(name, msg));
+    public boolean newMsg(String name, String msg, TiltottIface lista) throws RemoteException, TiltottSzoException {
+        if(jatek.size() < 1){
+            if(!lista.tiltottE(msg)) {
+                jatek.add(new Sor(name, msg));
+
+                return true;
+            } else
+                throw new TiltottSzoException(msg);
         } else {
             String szo = jatek.get(jatek.size() - 1).szo;
 
@@ -40,11 +45,13 @@ public class SzoJatek implements Serializable{
                     jatek.add(new Sor(name, msg));
 
                     return true;
-                }
-            }
+                } else
+                    throw new TiltottSzoException(msg);
+            } else
+                return false;
         }
 
-        return false;
+        return true;
     }
 
     ///Done: Idobelyeggel ellatott jatek-log, soronkent: <jatekos neve> <szo>

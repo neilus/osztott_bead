@@ -15,13 +15,15 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * Created by enorsan on 6/2/16.
  */
 public class TiltottSzerver extends UnicastRemoteObject implements TiltottIface{
-    List<String> tiltottSzavak = new CopyOnWriteArrayList<>();
+    private List<String> tiltottSzavak = new CopyOnWriteArrayList<>();
+    private int i;
     protected TiltottSzerver() throws RemoteException {
     }
 
     protected TiltottSzerver(int i) throws RemoteException, FileNotFoundException {
         BufferedReader szavasFile = new BufferedReader(new FileReader("./src/main/resources/szokincs" + i + ".txt"));
         String line = null;
+        this.i = i;
         try {
             line = szavasFile.readLine();
             while(line != null){
@@ -46,7 +48,7 @@ public class TiltottSzerver extends UnicastRemoteObject implements TiltottIface{
                 return true;
             }
         }
-        System.out.println(ujSzo + "felvetele a listaba");
+        System.out.println(ujSzo + " felvetele az " + i + ". listaba");
         tiltottSzavak.add(ujSzo);
 
         return false;

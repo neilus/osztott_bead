@@ -35,7 +35,7 @@ public class ClientHandler implements Runnable {
         startTime = new Timestamp(Calendar.getInstance().getTimeInMillis());
     }
 
-    public void publishMessage(String message, PrintWriter me, PrintWriter playmate) throws GameStartException {
+    public void publishMessage(String message, PrintWriter me, PrintWriter playmate) throws GameStartException, TiltottSzoException {
         // keressuk meg a jatszotarsunkat
         int thisSocket = allClients.indexOf(this.socket);
 
@@ -92,6 +92,22 @@ public class ClientHandler implements Runnable {
         }
     }
 
+    private void msgMate(String msg) throws IOException {
+        if (playmate == null) {
+            playmate = new PrintWriter(allClients.get(otherSocket).getOutputStream());
+        }
+        playmate.println(msg);
+        playmate.flush();
+    }
+
+    private void msgMe(String msg) throws IOException {
+        if (me == null) {
+            me = new PrintWriter(socket.getOutputStream());
+        }
+        me.println(msg);
+        me.flush();
+    }
+
     public void run() {
         allClients.add(socket);
 
@@ -104,12 +120,8 @@ public class ClientHandler implements Runnable {
                 //Done: Exit-re kilep a jatekbol, a masik jatekos nyert, bontja mindket kapcsolatot
                 try {
                     if ("exit".equals(line)) {
-                        publishMessage("nyert", me, playmate);
-//                        allClients.remove(socket);
                         System.out.println("Player " + myName + " exits");
-                        socket.close();
-                        this.jatek.writeToFile(startTime);
-
+                        throw new TiltottSzoException(line);
                     } else if ((otherSocket != -1) && allClients.get(otherSocket).isClosed()) {
                             System.out.println("The other player exited, closing socket for player " + myName);
                             output.println();
@@ -117,16 +129,27 @@ public class ClientHandler implements Runnable {
                     }
 
                     publishMessage(line, me, playmate);
+
                 } catch (GameStartException e) {
                     //Todo: Start uzenetet kuldeni a kezdo jatekosnak
-                    if(playmate == null){
-                        playmate = new PrintWriter(allClients.get(otherSocket).getOutputStream());
-                    }
-                    playmate.println("start");
-                    playmate.flush();
                     System.out.println("Starting the game...");
+                    msgMate("start");
                     this.jatek = new SzoJatek();
                     this.jatekok.add(this.jatek);
+
+                } catch (TiltottSzoException e) {
+                    System.out.println(myName + " egy tiltott szoval probalkozott: " + e.getSzo());
+                    this.jatek.endGame();
+
+                    msgMate("nyert");
+                    allClients.get(otherSocket).close();
+
+                    msgMe("Tiltott szo, vesztettel!");
+                    socket.close();
+
+                    this.jatek.writeToFile(startTime);
+                } catch (IOException ex){
+                    System.out.println("Game Over, " + ex.getLocalizedMessage());
                 }
             }
         } catch (IOException e) {
